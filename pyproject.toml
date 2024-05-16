@@ -8,8 +8,7 @@ readme = 'README.md'
 requires-python = ">=3.11"
 license = {file = "LICENSE"}
 keywords = ["mqtt", "aiomqtt", "vakio", "lytko", "yeelink", "self-hosted"]
-description = '''Simple smart-home automation system. Self-hosted, LAN only.
-Can manage Vakio Base Smart recuperators, Lytko 101 thermostats, and turn on/off Yeelink lamps.'''
+description = 'Simple smart-home automation system. Self-hosted, LAN only. Supports Vakio Lytko and Yeelink.'
 dependencies = [
     'PyYAML ~= 6.0.1',
     'aiomqtt~=2.1.0',
@@ -25,6 +24,10 @@ test = [
   'pytest',
   'pylint',
 ]
+
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
 
 [tool.pytest.ini_options]
 minversion = "6.0"

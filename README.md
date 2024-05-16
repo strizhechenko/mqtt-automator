@@ -2,6 +2,8 @@
 
 Тестировалось только на Ubuntu 22.04
 
+### Последняя версия
+
 ``` shell
 git clone https://codeberg.org/strizhechenko/mqtt_automator.git /opt/mqtt/
 apt install python3.11
@@ -10,6 +12,16 @@ cd /opt/mqtt/examples/config_example.yml /opt/mqtt/config.yml  # правим е
 cp -va /opt/mqtt/automator.service /etc/systemd/system/mqtt-automator.service
 systemctl enable --now mqtt-automator
 ```
+
+### Обновление из pypi
+
+Установить с нуля таким образом не выйдет. Всё равно требуется установка systemd-юнита и написание config.yml, который должен лежать в `/opt/mqtt/`.
+
+``` shell
+pip3 install mqtt-automator
+```
+
+### Разработка
 
 Если планируется делать доработки и делиться ими: лучше использовать pyenv с python3.11, я тестировал только на нём. Внутри virtualenv выполните:
 

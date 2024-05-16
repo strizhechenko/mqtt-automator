@@ -8,7 +8,7 @@ apt install python3.11
 python3.11 -m pip install -r /opt/mqtt/requirements.txt
 cd /opt/mqtt/examples/config.yml.example /opt/mqtt/config.yml  # правим его под себя
 cp -va /opt/mqtt/automator.service /etc/systemd/system/mqtt-automator.service
-systemctl enable --now automator
+systemctl enable --now mqtt-automator
 ```
 
 ## Поддерживаемые устройства

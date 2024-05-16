@@ -1,0 +1,18 @@
+[Unit]
+Description=MQTT Automator service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Environment="LANG=ru_RU.UTF-8"
+WorkingDirectory=/opt/mqtt/
+ExecStart=python3.11 automator.py
+Restart=always
+RuntimeDirectory=mqtt-automator
+KillSignal=SIGINT
+Type=simple
+StandardError=journal
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.target

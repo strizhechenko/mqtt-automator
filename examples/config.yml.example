@@ -1,0 +1,110 @@
+app:
+  log_level: INFO
+
+broker:
+  ip: '192.168.1.120'
+  proto: 5
+
+vakio:
+  common:
+    night:
+      workday: '22:30-08:59'
+      weekend: '22:30-09:29'
+      action:
+        state: off
+
+  cabinet:
+    morning:
+      workday: '09:00-09:15'
+      weekend: '09:30-09:59'
+      action:
+        state: on
+        workmode: recuperator
+        speed: 4
+
+    at_work:
+      workday: '09:15-18:00'
+      sub_rules:
+        before_meetings:
+          hours: '11-15'
+          minutes: '55-59'
+          action:
+            speed: 7
+
+        meetings:
+          hours: '12-15'
+          minutes: '0-15'
+          action:
+            speed: 1
+
+        fallback:
+          action:
+            speed: 3
+
+    day:
+      workday: '18:00-22:29'
+      weekend: '09:30-22:29'
+      action:
+        speed: 3
+
+  restroom:
+    day:
+      time: '10:00-19:59'
+      action:
+        state: on
+        speed: 1
+
+    before_sleep:
+      time: '20:00-21:59'
+      action:
+        state: on
+        speed: 3
+
+    max_vent_before_sleep:
+      time: '22:00-22:29'
+      action:
+        speed: 7
+
+lytko:
+  floor:
+    device: '12345'
+    sleep:
+      time: '23:00-05:59'
+      action:
+        mode: off
+
+    morning:
+      time: '06:00-11:59'
+      action:
+        mode: on
+        temperature: 23
+
+    evening:
+      time: '20:30-22:59'
+      action:
+        mode: on
+        temperature: 22
+
+    day:
+      time: '12:00-20:29'
+      action:
+        mode: on
+        temperature: 18
+
+yeelink:
+  common:
+    night:
+      time: '23:00-18:59'
+      action:
+        set_power: off
+
+    evening:
+      time: '19:00-22:59'
+      action:
+        set_power: on
+
+  light1:
+    device: '192.168.1.121'
+
+  light2:
+    device: '192.168.1.122'

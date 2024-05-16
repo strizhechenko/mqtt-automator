@@ -1,6 +1,8 @@
-import yaml
 import logging
 from datetime import datetime
+from pathlib import Path
+
+import yaml
 
 from application.config.time_parser import match_time_range, match_range
 
@@ -11,11 +13,23 @@ class ConfigParser:
     system_keys = {'app', 'broker'}
 
     def __init__(self):
-        self.config = yaml.load(open('config.yml').read(), yaml.SafeLoader)
+        """
+        config.yml should have a root-members:
+        broker:
+            ip: IPv4 of MQTT-broker
+            protocol: version of MQTT proto used by broker (default 5)
+        app:
+            log_level: DEBUG (default INFO)
+        """
+        self.config = yaml.load(Path('config.yml').read_text('utf-8'), yaml.SafeLoader)
+        self.broker: dict = self.config['broker']
+        self.settings: dict = self.config['app']
 
     def get_devices(self):
         """
         Generator that yields: tuple(vendor: str, device_name: str, device_id: str)
+
+        vendors are living in the root of config to prevent highly nested structure
 
         - vendor - vendor name to match with client class
         - device_name - human-oriented identifier given in config.yml
@@ -39,18 +53,11 @@ class ConfigParser:
                     continue
                 yield vendor, device_name, device.get('device', device_name)
 
-    def get_broker(self):
-        """ Config should have a root-member named `broker` with value = IPv4 of MQTT-broker"""
-        return self.config['broker']
-
-    def get_app_settings(self):
-        return self.config['app']
-
     def get_active_rules(self):
         """
         Rules are dictionaries with following members:
-        - workday - defines time range when rule will be active from monday to friday
-        - weekend - defines time range when rule will be active from saturday/sunday (there will be custom holidays later)
+        - workday - time range when rule will be active from monday to friday
+        - weekend - time range when rule will be active from saturday/sunday (there will be custom holidays later)
         - time - time range when rule will be active independently of the day of the week
         - action - dictionary of topic=payload that will be passed to the device when rule is active (optional)
         - sub_rules - alternative to action if device should repeatedly change workmode.
@@ -67,14 +74,14 @@ class ConfigParser:
                 if device == 'common':
                     continue
 
-                log.debug("Looking for device %s", device)
+                log.debug('Looking for device %s', device)
                 for name, rule in (rules | common).items():
                     if name == 'device':
                         continue
                     schedule = rule.get('workday' if is_workday else 'weekend') or rule.get('time')
-                    log.debug("Checking rule %s schedule %s", name, schedule)
+                    log.debug('Checking rule %s schedule %s', name, schedule)
                     if schedule and match_time_range(schedule, now_time):
-                        log.debug("rule %s schedule %s matched! yielding %s", name, schedule, rule)
+                        log.debug('rule %s schedule %s matched! yielding %s', name, schedule, rule)
                         yield device, name, rule
 
     @staticmethod
@@ -86,22 +93,21 @@ class ConfigParser:
         - minutes: same as hours but for minutes. Example: 15-59.
         - fallback: if no sub-rule is active this sub-rule will be applied.
         """
-        found, has_fallback, now = False, False, datetime.now().time()
+        found, has_fallback = False, False
+        now = datetime.now().time()
 
         for name, rule in sub_rules.items():
             if 'action' not in rule:
-                log.warning("%s has no action key", rule)
-                continue
+                log.warning('%s has no action key', rule)
             elif name == 'fallback':
                 has_fallback = True
-                continue
             elif 'hours' in rule and not match_range(rule['hours'], now.hour):
-                continue
+                pass
             elif 'minutes' in rule and not match_range(rule['minutes'], now.minute):
-                continue
-
-            found = True
-            yield name, rule
+                pass
+            else:
+                found = True
+                yield name, rule
 
         if not found and has_fallback:
             yield 'fallback', sub_rules['fallback']

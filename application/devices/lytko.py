@@ -22,7 +22,7 @@ class LytkoClient(BaseClient):
         >>> list(floor.subscriptions())
         ['climate/lytko/12345/state']
         """
-        yield f"climate/lytko/{self.device_id}/state"
+        yield f'climate/lytko/{self.device_id}/state'
 
     def build_topic_name(self, sub_topic) -> str:
         """
@@ -30,7 +30,7 @@ class LytkoClient(BaseClient):
         >>> floor.build_topic_name('temperature')
         'climate/lytko/12345/temperature/set'
         """
-        return f"climate/lytko/{self.device_id}/{sub_topic}/set"
+        return f'climate/lytko/{self.device_id}/{sub_topic}/set'
 
     async def enable(self):
         await self.publish('mode', 'heat')

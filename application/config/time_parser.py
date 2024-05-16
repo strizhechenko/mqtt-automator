@@ -15,7 +15,7 @@ def parse_time_range(time_range: str) -> list[time, time]:
 
 def match_range(range_: str, value: int) -> bool:
     """
-    Переполнения пока не требуются, поэтому наивная общая реализация сойдёт и для часов и для минут
+    No overflow required, so naive realisation is enough for both hours and minutes
     >>> match_range('3-10', 5)
     True
     >>> match_range('3-10', 2)

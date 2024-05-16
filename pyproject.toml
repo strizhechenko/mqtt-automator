@@ -4,3 +4,15 @@ addopts = "--doctest-modules"
 testpaths = [
     "application",
 ]
+
+[tool.autopep8]
+max_line_length = 120
+
+
+[tool.pylint.'FORMAT']
+max-line-length = 120
+
+[tool.pylint.'MESSAGES CONTROL']
+# why C0111: because I think module/class docstrings are generally useless, naming should be the documentation
+# why use-dict-literal: Empty dict literal may be confusing (set or dict?). Calling to dict is explicit.
+disable = 'C0111,use-dict-literal'

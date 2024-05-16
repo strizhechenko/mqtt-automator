@@ -21,7 +21,7 @@ class VakioClient(BaseClient):
         >>> cabinet.build_topic_name('speed')
         'cabinet_mqtt/speed'
         """
-        return f"{self.device_id}/{sub_topic}"
+        return f'{self.device_id}/{sub_topic}'
 
     async def disable(self):
         await self.publish('state', 'off')

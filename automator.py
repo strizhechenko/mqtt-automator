@@ -21,10 +21,10 @@ class Automator:
     def __init__(self):
         self.config = ConfigParser()
         logging.basicConfig(
-            level=logging.getLevelName(self.config.get_app_settings().get('log_level', 'INFO')),
+            level=logging.getLevelName(self.config.settings.get('log_level', 'INFO')),
             format='%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s:%(lineno)d: %(message)s'
         )
-        self.broker = Broker(**self.config.get_broker())
+        self.broker = Broker(**self.config.broker)
         self.devices: dict[str, base.BaseClient] = {
             device_name: self.client_map[vendor](device_id, device_name, self.broker)
             for vendor, device_name, device_id
@@ -39,47 +39,51 @@ class Automator:
         ])
 
     async def feedback(self):
+        """mqtt_client is transport to a broker, device_client is a specific for device management"""
         subscriptions = dict()
         async with self.broker.get_client() as mqtt_client:
-            for name, dev_client in self.devices.items():
-                for topic in dev_client.subscriptions():
-                    log.info(f'Subscribing to {topic}')
-                    subscriptions[topic] = dev_client
+            for device_client in self.devices.values():
+                for topic in device_client.subscriptions():
+                    log.info('Subscribing to %s', topic)
+                    subscriptions[topic] = device_client
                     await mqtt_client.subscribe(topic=topic)  # noqa
 
             try:
                 async for message in mqtt_client.messages:
-                    dev_client = subscriptions.get(message.topic.value)
-                    if not dev_client:
-                        log.warning("Dev-client not found for %s", message.topic)
+                    device_client = subscriptions.get(message.topic.value)
+                    if not device_client:
+                        log.warning('Device client not found for %s', message.topic)
                         continue
-                    log.debug("Received %s: %s", message.topic, message.payload)
-                    dev_client.receive(message.topic.value, message.payload.decode())
-                    log.debug("State of %s: %s", dev_client.device_id, dev_client.state)
+                    log.debug('Received %s: %s', message.topic, message.payload)
+                    device_client.receive(message.topic.value, message.payload.decode())
+                    log.debug('State of %s: %s', device_client.device_id, device_client.state)
 
             except asyncio.CancelledError:
-                log.info("Received cancel")
+                log.info('Received cancel')
                 for topic in subscriptions:
-                    log.info(f'Unsubscribing from {topic}')
+                    log.info('Unsubscribing from %s', topic)
                     await mqtt_client.unsubscribe(topic=topic)  # noqa
                 raise
 
     async def scheduler(self):
         noop = dict()
-        log.info("Waiting 5 seconds to init state from subscriptions")
+        log.info('Waiting 5 seconds to init state from subscriptions')
         await asyncio.sleep(5)
+
         while True:
             for device, name, rule in self.config.get_active_rules():
                 client: base.BaseClient = self.devices[device]
                 await self.apply_actions(client, device, name, rule.get('action', noop))
                 for sub_name, sub_rule in self.config.get_active_sub_rules(rule.get('sub_rules', noop)):
                     await self.apply_actions(client, device, sub_name, sub_rule['action'])
-            await asyncio.sleep(60 - datetime.now().time().second)
+
+            until_start_of_next_minute = 60 - datetime.now().time().second
+            await asyncio.sleep(until_start_of_next_minute)
 
     @staticmethod
     async def apply_actions(client, device, name, actions: dict):
         for sub_topic, payload in actions.items():
-            log.debug("Applying %s %s %s %s", device, name, sub_topic, payload)
+            log.debug('Applying %s %s %s %s', device, name, sub_topic, payload)
             await client.publish(sub_topic, payload)
 
 
@@ -87,4 +91,4 @@ if __name__ == '__main__':
     try:
         asyncio.run(Automator().run())
     except KeyboardInterrupt:
-        log.info("Finished")
+        log.info('Finished')

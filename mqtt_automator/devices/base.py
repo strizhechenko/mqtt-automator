@@ -3,7 +3,7 @@ import logging
 from datetime import datetime, timedelta
 from typing import Generator
 
-from application.broker import Broker
+from mqtt_automator.broker import Broker
 
 CLIENT_BLOCK_SECONDS = timedelta(hours=4).seconds
 

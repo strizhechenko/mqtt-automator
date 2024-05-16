@@ -5,8 +5,8 @@
 ``` shell
 git clone https://codeberg.org/strizhechenko/mqtt_automator.git /opt/mqtt/
 apt install python3.11
-python3.11 -m pip install -r /opt/mqtt/requirements.txt
-cd /opt/mqtt/examples/config.yml.example /opt/mqtt/config.yml  # правим его под себя
+python3.11 -m pip install /opt/mqtt/
+cd /opt/mqtt/examples/config_example.yml /opt/mqtt/config.yml  # правим его под себя
 cp -va /opt/mqtt/automator.service /etc/systemd/system/mqtt-automator.service
 systemctl enable --now mqtt-automator
 ```
@@ -14,7 +14,7 @@ systemctl enable --now mqtt-automator
 Если планируется делать доработки и делиться ими: лучше использовать pyenv с python3.11, я тестировал только на нём. Внутри virtualenv выполните:
 
 ``` shell
-pip3 install -r requirements-dev.txt
+pip install '/opt/mqtt/[test]'
 pre-commit install-hooks
 ```
 
@@ -59,9 +59,9 @@ pylint  # параметры он прочитает из pyproject.toml
 
 ## План развития
 
+- [x] Оформить код как **библиотеку**, перенести `automator.py` внутрь неё. Это позволит стороннему пользователю установить её из pypi, импортировать `from $libname.automator import Automator`, `from $libname.devices.base import BaseClient`, реализовать клиент к **своему устройству** и добавить его в `Automator.client_map` между инициализацией и запуском.
 - [ ] В будущем хочу добавить простенький **веб-интерфейс** на aiohttp + jinja2 (в качестве третьей вечной таски), через который можно будет управлять устройствами.
-- [ ] Оформить код как **библиотеку**, перенести `automator.py` внутрь неё. Это позволит стороннему пользователю установить её из pypi, импортировать `from $libname.automator import Automator`, `from $libname.devices.base import BaseClient`, реализовать клиент к **своему устройству** и добавить его в `Automator.client_map` между инициализацией и запуском.
-- [ ] Дописать тесты к [движку правил](./application/config/parser.py).
+- [ ] Дописать тесты к [движку правил](mqtt_automator/config/parser.py).
 
 ## Происхождение
 

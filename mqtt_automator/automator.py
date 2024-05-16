@@ -4,17 +4,17 @@ import logging
 
 from datetime import datetime
 
-from application.devices import base, vakio, lytko, yeelink
-from application.config.parser import ConfigParser
-from application.broker import Broker
+from mqtt_automator.broker import Broker
+from mqtt_automator.config.parser import ConfigParser
+from mqtt_automator.devices import base, vakio, lytko, yeelink
 
 log = logging.getLogger(__name__)
 
 
 class Automator:
     client_map = {
-        'vakio': vakio.VakioClient,
         'lytko': lytko.LytkoClient,
+        'vakio': vakio.VakioClient,
         'yeelink': yeelink.YeelinkClient,
     }
 
@@ -87,8 +87,12 @@ class Automator:
             await client.publish(sub_topic, payload)
 
 
-if __name__ == '__main__':
+def main_cli():
     try:
         asyncio.run(Automator().run())
     except KeyboardInterrupt:
         log.info('Finished')
+
+
+if __name__ == '__main__':
+    main_cli()

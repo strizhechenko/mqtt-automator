@@ -2,8 +2,8 @@ import asyncio
 import json
 import logging
 
-from application.broker import Broker
-from application.devices.base import BaseClient
+from mqtt_automator.broker import Broker
+from mqtt_automator.devices.base import BaseClient
 
 log = logging.getLogger(__name__)
 

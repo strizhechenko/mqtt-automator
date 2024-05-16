@@ -6,7 +6,7 @@ Wants=network-online.target
 [Service]
 Environment="LANG=ru_RU.UTF-8"
 WorkingDirectory=/opt/mqtt/
-ExecStart=python3.11 automator.py
+ExecStart=mqtt-automator
 Restart=always
 RuntimeDirectory=mqtt-automator
 KillSignal=SIGINT

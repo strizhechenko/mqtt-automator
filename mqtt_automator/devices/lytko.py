@@ -1,7 +1,7 @@
 import logging
 import json
 
-from application.devices.base import BaseClient
+from mqtt_automator.devices.base import BaseClient
 
 log = logging.getLogger(__name__)
 

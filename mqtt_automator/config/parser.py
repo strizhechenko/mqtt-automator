@@ -4,7 +4,7 @@ from pathlib import Path
 
 import yaml
 
-from application.config.time_parser import match_time_range, match_range
+from mqtt_automator.config.time_parser import match_time_range, match_range
 
 log = logging.getLogger(__name__)
 

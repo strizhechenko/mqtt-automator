@@ -3,6 +3,8 @@ import logging
 from datetime import datetime, timedelta
 from typing import Generator
 
+from pydantic import BaseModel
+
 from mqtt_automator.broker import Broker
 
 CLIENT_BLOCK_SECONDS = timedelta(hours=4).seconds
@@ -10,19 +12,24 @@ CLIENT_BLOCK_SECONDS = timedelta(hours=4).seconds
 log = logging.getLogger(__name__)
 
 
+class Device(BaseModel):
+    vendor: str
+    id: str
+    name: str
+
+
 class BaseClient(abc.ABC):
     topic_template: str
 
-    def __init__(self, device_id: str, device_name: str, broker: Broker = None):
+    def __init__(self, device: Device, broker: Broker = None):
         self.broker = broker
-        self.device_id = device_id
-        self.device_name = device_name
+        self.device = device
         self.state = dict()
         self.started_at = datetime.now()
         self.block = dict()
 
     def __str__(self):
-        return f'{type(self).__name__.replace("Client", "")} {self.device_name} ({self.device_id})'
+        return f'{type(self).__name__.replace("Client", "")} {self.device.name} ({self.device.id})'
 
     async def publish(self, sub_topic: str, payload):
         if isinstance(payload, bool):

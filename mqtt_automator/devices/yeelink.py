@@ -3,7 +3,7 @@ import json
 import logging
 
 from mqtt_automator.broker import Broker
-from mqtt_automator.devices.base import BaseClient
+from mqtt_automator.devices.base import BaseClient, Device
 
 log = logging.getLogger(__name__)
 
@@ -12,8 +12,8 @@ class YeelinkClient(BaseClient):
     port = 55443
     max_message_id = 65000
 
-    def __init__(self, device_id: str, device_name: str, broker: Broker = None):
-        super().__init__(device_id, device_name, broker)
+    def __init__(self, device: Device, broker: Broker = None):
+        super().__init__(device, broker)
         self.message_id = 0
 
     def subscriptions(self):
@@ -28,7 +28,7 @@ class YeelinkClient(BaseClient):
         self.message_id = ((self.message_id + 1) % self.max_message_id) + 1
         self.state[sub_topic] = payload
         try:
-            _, writer = await asyncio.open_connection(self.device_id, self.port)
+            _, writer = await asyncio.open_connection(self.device.id, self.port)
         except OSError:
             # If device is switched off, no problem, keep _desired_ state and skip further requests
             log.warning("Can't connect to %s", self)

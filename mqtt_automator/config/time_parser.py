@@ -16,9 +16,14 @@ def parse_time_range(time_range: str) -> list[time, time]:
 def match_range(range_: str, value: int) -> bool:
     """
     No overflow required, so naive realisation is enough for both hours and minutes
+    Also there is a bug, it works like value in `[min, max)`
     >>> match_range('3-10', 5)
     True
     >>> match_range('3-10', 2)
+    False
+    >>> match_range('3-10', 3)
+    True
+    >>> match_range('3-10', 10)
     False
     """
     return value in range(*map(int, range_.split('-')))

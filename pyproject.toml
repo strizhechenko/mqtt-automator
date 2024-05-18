@@ -13,6 +13,7 @@ dependencies = [
     'PyYAML ~= 6.0.1',
     'aiomqtt~=2.1.0',
     'paho-mqtt~=2.1.0',
+    'pydantic~=2.7.1',
 ]
 
 [project.scripts]
@@ -34,6 +35,7 @@ minversion = "6.0"
 addopts = "--doctest-modules"
 testpaths = [
     "mqtt_automator",
+    "tests",
 ]
 
 [tool.autopep8]

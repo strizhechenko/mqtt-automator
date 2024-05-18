@@ -1,6 +1,6 @@
 import logging
 
-from mqtt_automator.devices.base import BaseClient
+from mqtt_automator.devices.base import BaseClient, Device
 
 log = logging.getLogger(__name__)
 
@@ -17,11 +17,12 @@ class VakioClient(BaseClient):
 
     def build_topic_name(self, sub_topic) -> str:
         """
-        >>> cabinet = VakioClient('cabinet_mqtt', 'cabinet_pretty_name', '127.0.0.1')
+        >>> device = Device(vendor='vakio', id='cabinet_mqtt', name='cabinet_pretty_name')
+        >>> cabinet = VakioClient(device)
         >>> cabinet.build_topic_name('speed')
         'cabinet_mqtt/speed'
         """
-        return f'{self.device_id}/{sub_topic}'
+        return f'{self.device.id}/{sub_topic}'
 
     async def disable(self):
         await self.publish('state', 'off')

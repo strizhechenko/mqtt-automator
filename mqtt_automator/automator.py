@@ -4,7 +4,6 @@ import logging
 
 from datetime import datetime
 
-from mqtt_automator.broker import Broker
 from mqtt_automator.config.parser import ConfigParser
 from mqtt_automator.devices import base, vakio, lytko, yeelink
 
@@ -21,14 +20,12 @@ class Automator:
     def __init__(self):
         self.config = ConfigParser()
         logging.basicConfig(
-            level=logging.getLevelName(self.config.settings.get('log_level', 'INFO')),
+            level=logging.getLevelName(self.config.settings.log_level),
             format='%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s:%(lineno)d: %(message)s'
         )
-        self.broker = Broker(**self.config.broker)
         self.devices: dict[str, base.BaseClient] = {
-            device_name: self.client_map[vendor](device_id, device_name, self.broker)
-            for vendor, device_name, device_id
-            in self.config.get_devices()
+            device.name: self.client_map[device.vendor](device, self.config.broker)
+            for device in self.config.get_devices()
         }
 
     async def run(self):
@@ -41,7 +38,7 @@ class Automator:
     async def feedback(self):
         """mqtt_client is transport to a broker, device_client is a specific for device management"""
         subscriptions = dict()
-        async with self.broker.get_client() as mqtt_client:
+        async with self.config.broker.get_client() as mqtt_client:
             for device_client in self.devices.values():
                 for topic in device_client.subscriptions():
                     log.info('Subscribing to %s', topic)
@@ -56,7 +53,7 @@ class Automator:
                         continue
                     log.debug('Received %s: %s', message.topic, message.payload)
                     device_client.receive(message.topic.value, message.payload.decode())
-                    log.debug('State of %s: %s', device_client.device_id, device_client.state)
+                    log.debug('State of %s: %s', device_client.device.id, device_client.state)
 
             except asyncio.CancelledError:
                 log.info('Received cancel')

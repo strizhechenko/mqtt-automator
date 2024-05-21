@@ -107,7 +107,8 @@ class ConfigParser:
             for device_name, device in devices.items():
                 if device_name == 'common':
                     continue
-                yield Device(vendor=vendor, name=device_name, id=device.get('device', device_name))
+                device_id = device.pop('device', device_name)
+                yield Device(vendor=vendor, name=device_name, id=device_id, **device)
 
     def get_active_rules(self):
         """For rule structure see class Rule"""
@@ -125,8 +126,10 @@ class ConfigParser:
 
                 log.debug('Looking for device %s', device)
                 for name, rule_ in (rules | common).items():
-                    if name == 'device':
+                    if name in ('device', 'parent'):
                         continue
+                    if not isinstance(rule_, dict):
+                        log.error("Bad rule %s %s %s", device, name, rule_)
                     rule = Rule(**rule_)
                     schedule = (rule.workday if is_workday else rule.weekend) or rule.time
                     log.debug('Checking rule %s schedule %s', name, schedule)

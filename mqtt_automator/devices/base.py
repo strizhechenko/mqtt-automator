@@ -1,9 +1,9 @@
 import abc
 import logging
 from datetime import datetime, timedelta
-from typing import Generator
+from typing import Generator, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from mqtt_automator.broker import Broker
 
@@ -16,6 +16,7 @@ class Device(BaseModel):
     vendor: str
     id: str
     name: str
+    parent: Optional[str] = Field(default=None)
 
 
 class BaseClient(abc.ABC):

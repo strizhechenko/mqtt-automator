@@ -101,10 +101,11 @@ yeelink:
     evening:
       time: '19:00-22:59'
       action:
-        set_power: on
+        set_power: icmp
 
   light1:
     device: '192.168.1.121'
+    parent: '192.168.1.123'
 
   light2:
     device: '192.168.1.122'

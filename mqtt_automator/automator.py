@@ -75,6 +75,7 @@ class Automator:
                     await self.apply_actions(client, device, sub_name, sub_rule['action'])
 
             until_start_of_next_minute = 60 - datetime.now().time().second
+            log.debug("Sleep for %d seconds until start of next minute", until_start_of_next_minute)
             await asyncio.sleep(until_start_of_next_minute)
 
     @staticmethod
